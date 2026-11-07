@@ -1,7 +1,7 @@
 #ifndef DISTANCE_H
 #define DISTANCE_H
 
-#define N 5
+#define N 12
 
 #include <stdbool.h>
 #include <float.h>
