@@ -29,7 +29,6 @@ void GenerateEuclidianDistances(Distance *distance)
 void Create(Distance *distance)
 {
     memset(distance, 0, sizeof(Distance));
-    distance->BestCost = DBL_MAX;
 
     for(int i = 0; i < N; i++){
         distance->Coordinates[i][0] = (rand() % 10000) / 100.0f;
@@ -52,15 +51,22 @@ double CalculateCost(Distance *distance, int route[N])
     return cost;
 }
 
-void GeneratePermutations(Distance *distance, int position, int route[N], bool visited[N])
+void GeneratePermutations(
+    Distance *distance, 
+    int position, 
+    int route[N], 
+    bool visited[N],
+    double *BestCostLocal,
+    int BestRouteLocal[N]
+)
 {
     if(position == N){
         double actuallyCost = CalculateCost(distance, route);
 
-        if(actuallyCost < distance->BestCost){
-            distance->BestCost = actuallyCost;
+        if(actuallyCost < *BestCostLocal){
+            *BestCostLocal = actuallyCost;
             for (int i = 0; i < N; i++) {
-                distance->BestRoute[i] = route[i];
+                BestRouteLocal[i] = route[i];
             }
         }
 
@@ -72,7 +78,7 @@ void GeneratePermutations(Distance *distance, int position, int route[N], bool v
             route[position] = city;
             visited[city] = true;
 
-            GeneratePermutations(distance, position + 1, route, visited);
+            GeneratePermutations(distance, position + 1, route, visited, BestCostLocal, BestRouteLocal);
             visited[city] = false;
         }
     }

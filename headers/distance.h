@@ -9,15 +9,25 @@
 typedef struct{
     float Coordinates[N][2];
     float  EuclidianDistances[N][N];
+} Distance;
 
+typedef struct {
+    int InitialCity;
+    Distance *Distance;
     double BestCost;
     int BestRoute[N];
-
-} Distance;
+} ThreadData;
 
 void Create(Distance *distance);
 void GenerateEuclidianDistances(Distance *distance);
 double CalculateCost(Distance *distance, int route[N]);
-void GeneratePermutations(Distance *distance, int position, int route[N], bool visited[N]);
+    void GeneratePermutations(
+        Distance *distance, 
+        int position, 
+        int route[N], 
+        bool visited[N],
+        double *BestCostLocal,
+        int BestRouteLocal[N]
+    );
 
 #endif
