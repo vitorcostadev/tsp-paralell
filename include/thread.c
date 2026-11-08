@@ -13,20 +13,20 @@ ThreadData *td_create(void *arg){
 void *thread_tsp(void *arg)
 {
     ThreadData *data = td_create(arg);
-    int Route[N];
-    bool Visited[N] = {false};
+    int route[N];
+    bool visited[N] = {false};
 
-    Route[0] = 0;
-    Visited[0] = true;
+    route[0] = 0;
+    visited[0] = true;
 
-    Route[1] = data->initial_city;
-    Visited[data->initial_city] = true;
+    route[1] = data->initial_city;
+    visited[data->initial_city] = true;
 
     dgenerate_permutations(
         data->distance,
         2,
-        Route,
-        Visited,
+        route,
+        visited,
         &data->best_cost,
         data->best_route
     );
@@ -60,7 +60,7 @@ void run_paralell_tsp(Distance *distance, TSPParallelResult *pr)
 
     clock_gettime(CLOCK_MONOTONIC, &pr->start);
 
-    int CreatedThreads = 0;
+    int created_threads = 0;
 
     for (int i = 0; i < NUM_THREADS; i++) {
         int result = pthread_create(
@@ -75,18 +75,18 @@ void run_paralell_tsp(Distance *distance, TSPParallelResult *pr)
                     "Erro ao criar thread: %d\n",
                     result);
 
-            for (int j = 0; j < CreatedThreads; j++) {
+            for (int j = 0; j < created_threads; j++) {
                 pthread_join(pr->threads[j], NULL);
             }
 
             exit(1);
         }
 
-        CreatedThreads++;
+        created_threads++;
     }
 
-    double ParallelBestCost = DBL_MAX;
-    int ParallelBestRoute[N];
+    double parallel_best_cost = DBL_MAX;
+    int parallel_best_route[N];
 
     for (int i = 0; i < NUM_THREADS; i++) {
         int result = pthread_join(pr->threads[i], NULL);
@@ -98,19 +98,19 @@ void run_paralell_tsp(Distance *distance, TSPParallelResult *pr)
             exit(1);
         }
 
-        if (pr->threads_data[i].best_cost < ParallelBestCost) {
-            ParallelBestCost = pr->threads_data[i].best_cost;
+        if (pr->threads_data[i].best_cost < parallel_best_cost) {
+            parallel_best_cost = pr->threads_data[i].best_cost;
 
             for (int j = 0; j < N; j++) {
-                ParallelBestRoute[j] =
+                parallel_best_route[j] =
                     pr->threads_data[i].best_route[j];
             }
         }
     }
 
-    pr->pbest_cost = ParallelBestCost;
+    pr->pbest_cost = parallel_best_cost;
     for (int j = 0; j < N; j++) {
-        pr->pbest_route[j] = ParallelBestRoute[j];
+        pr->pbest_route[j] = parallel_best_route[j];
     }
 
     clock_gettime(CLOCK_MONOTONIC, &pr->end);

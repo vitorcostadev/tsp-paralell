@@ -19,11 +19,6 @@ As versões sequencial e paralela usam a mesma matriz de distâncias. Ao final,
 o programa exibe as melhores rotas, os tempos de execução, o *speedup*, a
 eficiência e uma validação dos custos encontrados.
 
-> **Escopo atual:** `N` é definido como `5` em
-> [`headers/distance.h`](headers/distance.h). A busca exaustiva cresce
-> fatorialmente, portanto aumentar esse valor pode tornar a execução muito
-> demorada.
-
 ## Funcionalidades
 
 - geração aleatória de coordenadas;
@@ -36,7 +31,19 @@ eficiência e uma validação dos custos encontrados.
 
 ## Requisitos
 
-### Linux
+### Para gerar os docs
+
+- Instale o [Doxygen](https://www.doxygen.nl/)
+
+Após instalar, execute:
+
+```bash
+doxygen
+```
+
+E o Doxygen irá gerar a documentação em `docs/html`.
+
+### Execução no Linux
 
 - GCC;
 - Bash;
@@ -49,7 +56,7 @@ Em distribuições baseadas em Debian, o compilador pode ser instalado com:
 sudo apt install build-essential
 ```
 
-### Windows
+### Execução no Windows
 
 - MinGW-w64 ou outro ambiente GCC compatível;
 - suporte disponível a Pthreads;

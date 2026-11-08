@@ -22,7 +22,14 @@ struct __tsp_paralell {
     int pbest_route[N];
 };
 
+/**
+ * @brief Struct to store the result of the sequential TSP algorithm.
+ */
 TSPSequentialResult* tsps_init();
+
+/**
+ * @brief Struct to store the result of the parallel TSP algorithm.
+ */
 TSPParallelResult *tspp_init();
 
 #endif
