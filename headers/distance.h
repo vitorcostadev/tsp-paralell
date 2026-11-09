@@ -1,8 +1,8 @@
 #ifndef DISTANCE_H
 #define DISTANCE_H
 
-#define N 5
-#define NUM_THREADS (N - 1)
+#define N 11
+#define NUM_THREADS N / 2
 
 #include <stdbool.h>
 #include <stddef.h>

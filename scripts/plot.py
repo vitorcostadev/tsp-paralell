@@ -39,10 +39,19 @@ def plot_route(
             alpha=0.8,
         )
 
-    route_cities = route.merge(cities, on="city", how="left")
+    route_cities = (
+        route.sort_values("order")
+        .merge(cities, on="city", how="left")
+        .reset_index(drop=True)
+    )
+    closed_route = pd.concat(
+        [route_cities, route_cities.iloc[[0]]],
+        ignore_index=True,
+    )
+
     ax.plot(
-        route_cities["x"],
-        route_cities["y"],
+        closed_route["x"],
+        closed_route["y"],
         color="red",
         linewidth=2.8,
         marker="o",
@@ -51,6 +60,25 @@ def plot_route(
         zorder=2,
     )
 
+    for start, end in zip(
+        closed_route.iloc[:-1].itertuples(),
+        closed_route.iloc[1:].itertuples(),
+    ):
+        ax.annotate(
+            "",
+            xy=(end.x, end.y),
+            xytext=(start.x, start.y),
+            arrowprops={
+                "arrowstyle": "->",
+                "color": "red",
+                "linewidth": 1.5,
+                "alpha": 0.9,
+                "shrinkA": 10,
+                "shrinkB": 10,
+            },
+            zorder=5,
+        )
+
     ax.scatter(
         cities["x"],
         cities["y"],
@@ -58,6 +86,17 @@ def plot_route(
         color="royalblue",
         edgecolors="black",
         zorder=3,
+    )
+
+    initial_city = cities.loc[cities["city"] == 1].iloc[0]
+    ax.scatter(
+        initial_city["x"],
+        initial_city["y"],
+        s=100,
+        color="orange",
+        edgecolors="black",
+        label="Initial city",
+        zorder=4,
     )
 
     for _, city in cities.iterrows():
@@ -89,7 +128,7 @@ def main() -> None:
         cities,
         distances,
         pd.read_csv(OUTPUT_DIR / "sequential_route.csv"),
-        "Traveling Salesman Problem - Sequential",
+        "Traveling Salesman Problem",
         OUTPUT_DIR / "sequential_route.png",
     )
 

@@ -21,6 +21,11 @@ if not errorlevel 1 (
     )
 )
 
+if not exist ".\output" (
+    mkdir ".\output"
+    if errorlevel 1 exit /b %errorlevel%
+
+)
 if not exist ".venv\Scripts\python.exe" (
     %PYTHON% -m venv .venv
     if errorlevel 1 exit /b %errorlevel%

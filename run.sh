@@ -21,6 +21,10 @@ if [ ! -d ".venv" ]; then
     "$PYTHON" -m venv .venv
 fi
 
+if [ ! -d "output" ]; then
+    mkdir output
+fi
+
 source .venv/bin/activate
 python -m pip install -r requirements.txt
 python scripts/plot.py

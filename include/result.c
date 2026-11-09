@@ -27,6 +27,12 @@ TSPParallelResult *tspp_init()
     if(tspp != NULL)
     {
         tspp->pbest_cost = DBL_MAX;
+
+        for(unsigned i = 0; i < NUM_THREADS; i++){
+            tspp->threads_data[i].initial_city = i + 1;
+            tspp->threads_data[i].distance = NULL;
+            tspp->threads_data[i].best_cost = DBL_MAX;
+        }
     }
 
     return tspp;

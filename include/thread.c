@@ -53,9 +53,7 @@ void run_sequential_tsp(Distance *distance, TSPSequentialResult *sr)
 void run_paralell_tsp(Distance *distance, TSPParallelResult *pr)
 {
     for (int i = 0; i < NUM_THREADS; i++) {
-        pr->threads_data[i].initial_city = i + 1;
         pr->threads_data[i].distance = distance;
-        pr->threads_data[i].best_cost = DBL_MAX;
     }
 
     clock_gettime(CLOCK_MONOTONIC, &pr->start);

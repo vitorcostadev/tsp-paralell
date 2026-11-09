@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 
 #include "headers/result.h"
 #include "headers/thread.h"
@@ -13,7 +14,7 @@ int main(void)
     TSPSequentialResult *sr = tsps_init();
     TSPParallelResult *pr = tspp_init();
 
-    export_coordinates(distance);
+    
 
     if (distance == NULL || sr == NULL || pr == NULL) {
         free(pr);
@@ -24,9 +25,11 @@ int main(void)
     }
     print_matrix(distance);
     run(distance, sr, pr);
-    export_distances(distance);
 
+    export_distances(distance);
+    export_coordinates(distance);
     export_route(sr->sbest_route, "output/sequential_route.csv");
+    export_route(pr->pbest_route, "output/parallel_route.csv");
 
     double Ts = get_elapsed_time(sr->start, sr->end);
     double Tp = get_elapsed_time(pr->start, pr->end);
@@ -60,13 +63,12 @@ int main(void)
 
     printf("\n========== VALIDATION ==========\n");
 
-    if (sr->sbest_cost == pr->pbest_cost) {
-        printf("The sequential and parallel executions found the same optimal cost.\n");
+    if (fabs(sr->sbest_cost - pr->pbest_cost) < 1e-6) {
+        printf("Both executions found the same optimal cost.\n");
     } else {
-        printf("The sequential and parallel executions found different optimal costs.\n");
+        printf("Different optimal costs found.\n");
     }
-
-    free(pr);
+        free(pr);
     free(sr);
     free(distance);
 
