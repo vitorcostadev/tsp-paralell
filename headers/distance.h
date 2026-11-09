@@ -2,7 +2,7 @@
 #define DISTANCE_H
 
 #define N 11
-#define NUM_THREADS N / 2
+#define NUM_THREADS (N - 1)
 
 #include <stdbool.h>
 #include <stddef.h>
