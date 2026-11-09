@@ -5,6 +5,7 @@
 #define NUM_THREADS (N - 1)
 
 #include <stdbool.h>
+#include <stddef.h>
 
 typedef struct __distance {
     float coordinates[N][2];
@@ -41,9 +42,10 @@ float dcalculate_cost(Distance *distance, int route[N]);
  * @param visited An array indicating which coordinates have been visited in the current route.
  * @param best_cost A pointer to the best cost found so far.
  * @param best_route An array to store the best route found so far.
+ * @return The number of complete routes evaluated.
  * @note The function uses recursion to generate all possible permutations of routes, calculates the cost for each route, and updates the best cost and best route if a better one is found.
  */
-void dgenerate_permutations(
+size_t dgenerate_permutations(
     Distance *distance,
     int position,
     int route[N],

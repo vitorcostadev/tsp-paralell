@@ -63,7 +63,7 @@ float dcalculate_cost(Distance *distance, int route[N])
     return cost;
 }
 
-void dgenerate_permutations(
+size_t dgenerate_permutations(
     Distance *distance, 
     int position, 
     int route[N], 
@@ -82,16 +82,17 @@ void dgenerate_permutations(
             }
         }
 
-        return;
+        return 1;
     }
 
+    size_t routes_evaluated = 0;
     for(unsigned ci = 1; ci < N; ci++)
     {
         if(!visited[ci]){
             route[position] = ci;
             visited[ci] = true;
 
-            dgenerate_permutations(
+            routes_evaluated += dgenerate_permutations(
                 distance,
                 position + 1,
                 route,
@@ -103,4 +104,6 @@ void dgenerate_permutations(
         }
 
     }
+
+    return routes_evaluated;
 }

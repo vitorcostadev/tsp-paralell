@@ -8,9 +8,12 @@
 
 int main(void)
 {
+    srand(time(NULL));
     Distance *distance = dcreate();
     TSPSequentialResult *sr = tsps_init();
     TSPParallelResult *pr = tspp_init();
+
+    export_coordinates(distance);
 
     if (distance == NULL || sr == NULL || pr == NULL) {
         free(pr);
@@ -21,6 +24,9 @@ int main(void)
     }
     print_matrix(distance);
     run(distance, sr, pr);
+    export_distances(distance);
+
+    export_route(sr->sbest_route, "output/sequential_route.csv");
 
     double Ts = get_elapsed_time(sr->start, sr->end);
     double Tp = get_elapsed_time(pr->start, pr->end);
@@ -45,8 +51,8 @@ int main(void)
     printf("Tempo paralelo (Tp):   %.9f segundos\n", Tp);
 
     if (Tp > 0.0) {
-        double Speedup = Ts / Tp;
-        double Efficiency = Speedup / NUM_THREADS;
+        double Speedup = calculate_speedup(Ts, Tp);
+        double Efficiency = calculate_efficiency(Speedup, NUM_THREADS);
 
         printf("Speedup: %.4f\n", Speedup);
         printf("Efficiency: %.2f%%\n", Efficiency * 100.0);
