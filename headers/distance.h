@@ -1,7 +1,7 @@
 #ifndef DISTANCE_H
 #define DISTANCE_H
 
-#define N 11
+#define N 12
 #define NUM_THREADS (N - 1)
 
 #include <stdbool.h>
@@ -32,7 +32,7 @@ void dgenerate_euclidian_distances(Distance *distance);
  * @return The total cost of the route.
  * @note The function sums the Euclidean distances between consecutive coordinates in the route, including the distance from the last coordinate back to the first.
  */
-float dcalculate_cost(Distance *distance, int route[N]);
+double dcalculate_cost(Distance *distance, int route[N]);
 
 /**
  * @brief Generates all permutations of routes and finds the best route with the minimum cost.

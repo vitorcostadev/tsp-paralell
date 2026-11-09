@@ -51,7 +51,7 @@ Distance* dcreate()
     return distance;
 }
 
-float dcalculate_cost(Distance *distance, int route[N])
+double dcalculate_cost(Distance *distance, int route[N])
 {
     double cost = 0.00;
     for(unsigned i = 0; i<N-1; i++)
