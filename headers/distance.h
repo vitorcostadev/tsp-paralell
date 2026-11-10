@@ -1,7 +1,9 @@
 #ifndef DISTANCE_H
 #define DISTANCE_H
 
+#ifndef N
 #define N 12
+#endif
 #define NUM_THREADS (N - 1)
 
 #include <stdbool.h>

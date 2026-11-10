@@ -19,6 +19,7 @@ target_compile_options(tsp PRIVATE -Wall -Wextra -Wpedantic)
 target_link_libraries(tsp PRIVATE Threads::Threads m)
 
 add_executable(tsp_test tests/test_tsp.c ${TSP_SOURCES})
+target_compile_definitions(tsp_test PRIVATE N=5)
 target_compile_options(tsp_test PRIVATE -Wall -Wextra -Wpedantic)
 target_link_libraries(tsp_test PRIVATE Threads::Threads m)
 

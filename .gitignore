@@ -2,3 +2,4 @@
 /docs
 /build
 /output
+__pycache__/

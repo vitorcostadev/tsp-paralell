@@ -131,6 +131,14 @@ def main() -> None:
         "Traveling Salesman Problem",
         OUTPUT_DIR / "sequential_route.png",
     )
+    
+    plot_route(
+        cities,
+        distances,
+        pd.read_csv(OUTPUT_DIR / "parallel_route.csv"),
+        "Traveling Salesman Problem",
+        OUTPUT_DIR / "parallel_route.png",
+    )
 
 
 if __name__ == "__main__":

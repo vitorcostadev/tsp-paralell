@@ -19,40 +19,26 @@ As versões sequencial e paralela usam a mesma matriz de distâncias. Ao final,
 o programa exibe as melhores rotas, os tempos de execução, o *speedup*, a
 eficiência e uma validação dos custos encontrados.
 
-## Funcionalidades
-
-- geração aleatória de coordenadas;
-- matriz de distâncias euclidianas;
-- busca exaustiva com *backtracking*;
-- execução sequencial;
-- execução paralela com `N - 1` threads;
-- comparação de desempenho;
-- validação de que as duas versões encontraram o mesmo custo ótimo;
-- exportação das cidades, distâncias e rotas em arquivos CSV;
-- geração de um gráfico PNG da rota sequencial;
-
 ## Requisitos
 
-- GCC com suporte a Pthreads e `libm`;
-- Bash no Linux ou MinGW-w64 no Windows;
-- Python 3 com `venv` e `pip`;
-- `matplotlib` e `pandas`;
-- CMake e Doxygen, opcionalmente.
+- GCC com suporte a pthreads;
+- Python para a geração dos gráficos (opcional);
 
 ## Execução rápida
 
 ### Linux
 
 ```bash
-chmod +x run.sh
-./run.sh
+chmod +x scripts/run.sh
+./scripts/run.sh
 ```
 
-O script compila com `-Wall -Wextra -Wpedantic`, habilita Pthreads com
-`-pthread`, vincula a biblioteca matemática com `-lm` e executa o binário.
-Depois, verifica se o Python 3 está disponível, cria e ativa o ambiente
-`.venv`, instala as dependências de [`requirements.txt`](requirements.txt) e
-gera `output/sequential_route.png` com o script de plotagem.
+Para gerar os gráficos, execute o ['plot.sh'](scripts/plot.sh) no Linux:
+
+```bash
+chmod +x scripts/plot.sh
+./scripts/plot.sh
+```
 
 ### Windows
 
@@ -62,14 +48,15 @@ No Prompt de Comando ou PowerShell:
 run.bat
 ```
 
-O script executa as mesmas etapas no Windows. Ele procura `python` ou `py -3`,
-cria `.venv\Scripts`, instala as dependências e executa a plotagem da rota
-sequencial.
+Para gerar os gráficos, execute o ['plot.bat'](scripts/plot.bat) no Windows:
 
-Os scripts encerram com erro quando o compilador ou o Python não está
-disponível. O ambiente virtual é reutilizado em execuções posteriores.
+```bat
+plot.bat
+```
 
 ## Compilação manual
+
+### No Linux
 
 ```bash
 gcc -Wall -Wextra -Wpedantic -pthread \
@@ -78,7 +65,16 @@ gcc -Wall -Wextra -Wpedantic -pthread \
 ./main
 ```
 
-### CMake e Make
+### No Windows
+
+```bat
+gcc -Wall -Wextra -Wpedantic -pthread ^
+    main.c include/utils.c include/distance.c include/result.c include/thread.c ^
+    -o main.exe -lm
+main.exe
+```
+
+### Testes
 
 Com CMake, configure e compile o projeto e execute todos os testes com:
 
@@ -88,57 +84,36 @@ cmake --build build
 ctest --test-dir build --output-on-failure
 ```
 
-O projeto também possui um Makefile:
-
-```bash
-make
-make test
-```
-
 O alvo `test` compila o executável de teste e executa a validação das versões
 sequencial e paralela.
 
 Os testes também validam:
 
-- a matriz completa de distâncias euclidianas;
-- as fórmulas de *speedup* (`Ts / Tp`) e eficiência (`speedup / P`);
-- a enumeração de `(N - 1)!` rotas com a cidade inicial fixa;
-- a identificação da rota ótima pela busca exaustiva;
-- a equivalência dos custos ótimos sequencial e paralelo.
+- A matriz completa de distâncias euclidianas;
+- As fórmulas de *speedup* (`Ts / Tp`) e eficiência (`speedup / P`);
+- A enumeração de `(N - 1)!` rotas com a cidade inicial fixa;
+- A identificação da rota ótima pela busca exaustiva;
+- A equivalência dos custos ótimos sequencial e paralelo.
 
-## Saídas e visualização
+## Gráficos
 
-Ao executar o programa, os arquivos abaixo são gerados no diretório `output/`:
+Ao compilar o programa, ele vai gerar os CSVs das coordenadas das cidades, das distâncias entre os pares, e as melhores rotas tanto da execução sequencial quanto da paralela.
+
+A pasta que é gerada após a compilação é a `output/`, nela vai estar estes arquivos:
 
 ```text
 output/
 ├── cities.csv             # Coordenadas das cidades
 ├── distances.csv          # Distâncias entre os pares de cidades
 ├── sequential_route.csv   # Rota ótima sequencial
-└── sequential_route.png   # Gráfico gerado por plot.py
+└── parallel_route.csv     # Rota ótima paralela
 ```
 
-O gráfico é gerado somente para a rota sequencial:
+Quando executar o script [`scripts/plot.py`](scripts/plot.py), ele vai ler todos esses CSVs e gerar os gráficos para ambas as rotas.
 
-```bash
-.venv/bin/python scripts/plot.py       # Linux/macOS
-.venv\Scripts\python.exe scripts\plot.py  # Windows
-```
+Para executar mais rapidamente, utilize o [`scripts/plot.sh`](scripts/plot.sh) (Linux) ou [`scripts/plot.bat`](scripts/plot.bat) (Windows) onde será criado a venv no projeto, instalado as dependências e executar o plot.py.
 
-O script [`scripts/plot.py`](scripts/plot.py) usa `pandas` para ler os CSVs e
-`matplotlib` para desenhar as cidades, a matriz de distâncias e a rota ótima.
-
-As dependências Python estão listadas em
-[`requirements.txt`](requirements.txt):
-
-```text
-matplotlib
-pandas
-```
-
-O programa não recebe argumentos de linha de comando atualmente. Para alterar
-o tamanho da instância, edite `N` em
-[`headers/distance.h`](headers/distance.h) e compile novamente.
+As dependências para executar o script em Python está em [`requirements.txt`](requirements.txt).
 
 ## Exemplo de saída
 
@@ -197,38 +172,10 @@ Com a origem fixa, o algoritmo avalia `(N - 1)!` rotas. Considerando o custo
 de calcular cada rota, a complexidade é:
 
 $$
-Tempo = O(n!)\\
+Tempo = O(n!) \\
 Espaço = O(n)
 $$
 
 A versão paralela distribui partes da busca, mas mantém a mesma complexidade
 assintótica. A aceleração real depende do tamanho da instância, do número de
 núcleos e do custo de criação e sincronização das threads.
-
-## Estrutura do projeto
-
-```text
-tsp/
-├── headers/
-│   ├── distance.h       # Tipos, constantes e API das distâncias
-│   ├── result.h         # Tipos e inicialização dos resultados
-│   ├── thread.h         # Execução paralela e sequencial
-│   └── utils.h          # Impressão e medição de tempo
-├── include/
-│   ├── distance.c       # Coordenadas, distâncias e backtracking
-│   ├── result.c         # Alocação e inicialização dos resultados
-│   ├── thread.c         # Threads, execução e agregação dos resultados
-│   └── utils.c          # Saída formatada e medição de tempo
-├── main.c               # Fluxo principal e comparação
-├── scripts/
-│   └── plot.py           # Geração do gráfico da rota sequencial
-├── tests/
-│   └── test_tsp.c        # Testes do algoritmo e das métricas
-├── output/               # CSVs e PNG gerados durante a execução
-├── CMakeLists.txt        # Configuração de build e CTest
-├── Makefile              # Build e alvo make test
-├── requirements.txt      # Dependências Python do plot
-├── run.sh                # Compilação, execução e plot no Linux
-├── run.bat               # Compilação, execução e plot no Windows
-└── README.md
-```

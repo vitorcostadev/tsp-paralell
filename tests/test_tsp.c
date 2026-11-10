@@ -27,6 +27,24 @@ static int route_is_valid(const int route[N])
     return route[0] == 0;
 }
 
+static void initialize_known_instance(Distance *distance)
+{
+    const float coordinates[N][2] = {
+        {0.0f, 0.0f},
+        {1.0f, 0.0f},
+        {1.0f, 1.0f},
+        {0.0f, 1.0f},
+        {0.5f, 0.5f}
+    };
+
+    for (int city = 0; city < N; city++) {
+        distance->coordinates[city][0] = coordinates[city][0];
+        distance->coordinates[city][1] = coordinates[city][1];
+    }
+
+    dgenerate_euclidian_distances(distance);
+}
+
 static int test_euclidean_matrix(const Distance *distance)
 {
     const double expected[N][N] = {
@@ -113,29 +131,23 @@ static int test_parallel_matches_sequential(Distance *distance)
 
 int main(void)
 {
-    Distance distance = {0};
-    const float coordinates[N][2] = {
-        {0.0f, 0.0f},
-        {1.0f, 0.0f},
-        {1.0f, 1.0f},
-        {0.0f, 1.0f},
-        {0.5f, 0.5f}
-    };
-
-    for (int city = 0; city < N; city++) {
-        distance.coordinates[city][0] = coordinates[city][0];
-        distance.coordinates[city][1] = coordinates[city][1];
+    Distance *distance = dcreate();
+    if (distance == NULL) {
+        fprintf(stderr, "Could not create test distance");
+        return EXIT_FAILURE;
     }
-    dgenerate_euclidian_distances(&distance);
+
+    initialize_known_instance(distance);
 
     int metrics = test_metrics();
-    int matrix = test_euclidean_matrix(&distance);
-    int brute_force = test_brute_force(&distance);
-    int parallel = test_parallel_matches_sequential(&distance);
+    int matrix = test_euclidean_matrix(distance);
+    int brute_force = test_brute_force(distance);
+    int parallel = test_parallel_matches_sequential(distance);
     if (!metrics || !matrix || !brute_force || !parallel) {
         fprintf(stderr, "TSP tests failed\n");
         return EXIT_FAILURE;
     }
 
+    free(distance);
     return EXIT_SUCCESS;
 }
