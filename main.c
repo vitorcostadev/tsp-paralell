@@ -10,6 +10,8 @@
 
 int main(void)
 {
+    srand(1);
+
     Distance *distance = dcreate();
     TSPSequentialResult *sr = tsps_init();
     TSPParallelResult *pr = tspp_init();

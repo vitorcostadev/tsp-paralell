@@ -1,4 +1,5 @@
 from pathlib import Path
+import argparse
 
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -121,23 +122,33 @@ def plot_route(
 
 
 def main() -> None:
-    cities = pd.read_csv(OUTPUT_DIR / "cities.csv")
-    distances = pd.read_csv(OUTPUT_DIR / "distances.csv")
+    parser = argparse.ArgumentParser(description="Generate TSP route plots.")
+    parser.add_argument(
+        "--output-dir",
+        type=Path,
+        default=OUTPUT_DIR,
+        help="Directory containing the CSV files and receiving the PNG files.",
+    )
+    args = parser.parse_args()
+    output_dir = args.output_dir
+
+    cities = pd.read_csv(output_dir / "cities.csv")
+    distances = pd.read_csv(output_dir / "distances.csv")
 
     plot_route(
         cities,
         distances,
-        pd.read_csv(OUTPUT_DIR / "sequential_route.csv"),
+        pd.read_csv(output_dir / "sequential_route.csv"),
         "Traveling Salesman Problem",
-        OUTPUT_DIR / "sequential_route.png",
+        output_dir / "sequential_route.png",
     )
     
     plot_route(
         cities,
         distances,
-        pd.read_csv(OUTPUT_DIR / "parallel_route.csv"),
+        pd.read_csv(output_dir / "parallel_route.csv"),
         "Traveling Salesman Problem",
-        OUTPUT_DIR / "parallel_route.png",
+        output_dir / "parallel_route.png",
     )
 
 

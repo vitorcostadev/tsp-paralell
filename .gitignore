@@ -3,3 +3,7 @@
 /build
 /output
 __pycache__/
+
+# Keep only the presentation PDF from generated LaTeX files.
+/tex/*
+!/tex/*.pdf
