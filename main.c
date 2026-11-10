@@ -10,12 +10,9 @@
 
 int main(void)
 {
-    srand(time(NULL));
     Distance *distance = dcreate();
     TSPSequentialResult *sr = tsps_init();
     TSPParallelResult *pr = tspp_init();
-
-    
 
     if (distance == NULL || sr == NULL || pr == NULL) {
         free(pr);
@@ -25,7 +22,11 @@ int main(void)
         return EXIT_FAILURE;
     }
     print_matrix(distance);
-    run(distance, sr, pr);
+    size_t sequential_routes = run_sequential_tsp(distance, sr);
+    size_t parallel_routes = run_paralell_tsp(distance, pr);
+
+    printf("Sequential routes evaluated: %zu\n", sequential_routes);
+    printf("Parallel routes evaluated: %zu\n", parallel_routes);
 
     export_distances(distance);
     export_coordinates(distance);
@@ -64,6 +65,10 @@ int main(void)
 
     printf("\n========== VALIDATION ==========\n");
 
+    if(sequential_routes != parallel_routes) {
+        printf("Different number of routes evaluated.\n");
+        return EXIT_FAILURE;
+    } 
     if (fabs(sr->sbest_cost - pr->pbest_cost) < 1e-6) {
         printf("Both executions found the same optimal cost.\n");
     } else {

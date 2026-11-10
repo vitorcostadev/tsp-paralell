@@ -115,13 +115,15 @@ static int test_parallel_matches_sequential(Distance *distance)
         return 0;
     }
 
-    run(distance, sequential, parallel);
+    size_t sequential_routes = run_sequential_tsp(distance, sequential);
+    size_t parallel_routes = run_paralell_tsp(distance, parallel);
 
     int passed = isfinite(sequential->sbest_cost) &&
                  isfinite(parallel->pbest_cost) &&
                  nearly_equal(sequential->sbest_cost, parallel->pbest_cost) &&
                  route_is_valid(sequential->sbest_route) &&
                  route_is_valid(parallel->pbest_route) &&
+                 sequential_routes == parallel_routes &&
                  nearly_equal(sequential->sbest_cost, 3.0 + sqrt(2.0));
 
     free(sequential);

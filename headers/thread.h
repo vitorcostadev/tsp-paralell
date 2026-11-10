@@ -12,6 +12,7 @@ struct __thread_data {
     Distance *distance;
     double best_cost;
     int best_route[N];
+    size_t routes_evaluated;
 };
 
 /**
@@ -36,7 +37,7 @@ void *thread_tsp(void *arg);
  * @param sr A pointer to the TSPSequentialResult structure where the results of the sequential TSP algorithm will be stored.
  * @note This function measures the time taken to solve the TSP problem sequentially and updates the TSPSequentialResult structure with the best cost and route found.
  */
-void run_sequential_tsp(Distance *distance, TSPSequentialResult *sr);
+size_t run_sequential_tsp(Distance *distance, TSPSequentialResult *sr);
 
 /**
  * @brief Runs the parallel TSP algorithm.
@@ -44,14 +45,5 @@ void run_sequential_tsp(Distance *distance, TSPSequentialResult *sr);
  * @param pr A pointer to the TSPParallelResult structure where the results of the parallel TSP algorithm will be stored.
  * @note This function creates multiple threads to solve the TSP problem in parallel. It measures the time taken to solve the TSP problem and updates the TSP
  */
-void run_paralell_tsp(Distance *distance, TSPParallelResult *pr);
-
-/**
- * @brief Runs both the sequential and parallel TSP algorithms.
- * @param distance A pointer to the Distance structure containing the coordinates and Euclidean distances.
- * @param sr A pointer to the TSPSequentialResult structure where the results of the sequential TSP algorithm will be stored.
- * @param pr A pointer to the TSPParallelResult structure where the results of the parallel TSP algorithm will be stored.
- * @note This function first runs the sequential TSP algorithm and then runs the parallel TSP algorithm, storing the results in the provided
- */
-void run(Distance *distance, TSPSequentialResult *sr, TSPParallelResult *pr);
+size_t run_paralell_tsp(Distance *distance, TSPParallelResult *pr);
 #endif

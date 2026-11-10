@@ -22,7 +22,7 @@ void *thread_tsp(void *arg)
     route[1] = data->initial_city;
     visited[data->initial_city] = true;
 
-    dgenerate_permutations(
+    data->routes_evaluated = dgenerate_permutations(
         data->distance,
         2,
         route,
@@ -34,11 +34,11 @@ void *thread_tsp(void *arg)
     return NULL;
 }
 
-void run_sequential_tsp(Distance *distance, TSPSequentialResult *sr)
+size_t run_sequential_tsp(Distance *distance, TSPSequentialResult *sr)
 {
     clock_gettime(CLOCK_MONOTONIC, &sr->start);
 
-    dgenerate_permutations(
+    size_t result = dgenerate_permutations(
         distance,
         1,
         sr->sroute,
@@ -48,9 +48,11 @@ void run_sequential_tsp(Distance *distance, TSPSequentialResult *sr)
     );
 
     clock_gettime(CLOCK_MONOTONIC, &sr->end);
+
+    return result;
 }
 
-void run_paralell_tsp(Distance *distance, TSPParallelResult *pr)
+size_t run_paralell_tsp(Distance *distance, TSPParallelResult *pr)
 {
     for (int i = 0; i < NUM_THREADS; i++) {
         pr->threads_data[i].distance = distance;
@@ -59,6 +61,7 @@ void run_paralell_tsp(Distance *distance, TSPParallelResult *pr)
     clock_gettime(CLOCK_MONOTONIC, &pr->start);
 
     int created_threads = 0;
+    size_t total_routes = 0;
 
     for (int i = 0; i < NUM_THREADS; i++) {
         int result = pthread_create(
@@ -88,13 +91,14 @@ void run_paralell_tsp(Distance *distance, TSPParallelResult *pr)
 
     for (int i = 0; i < NUM_THREADS; i++) {
         int result = pthread_join(pr->threads[i], NULL);
-
         if (result != 0) {
             fprintf(stderr,
                     "Erro ao aguardar thread: %d\n",
                     result);
             exit(1);
         }
+
+        total_routes += pr->threads_data[i].routes_evaluated;
 
         if (pr->threads_data[i].best_cost < parallel_best_cost) {
             parallel_best_cost = pr->threads_data[i].best_cost;
@@ -112,9 +116,6 @@ void run_paralell_tsp(Distance *distance, TSPParallelResult *pr)
     }
 
     clock_gettime(CLOCK_MONOTONIC, &pr->end);
-}
 
-void run(Distance *distance, TSPSequentialResult *sr, TSPParallelResult *pr){
-    run_sequential_tsp(distance, sr);
-    run_paralell_tsp(distance, pr);
+    return total_routes;
 }
