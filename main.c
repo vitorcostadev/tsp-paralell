@@ -69,7 +69,8 @@ int main(void)
     } else {
         printf("Different optimal costs found.\n");
     }
-        free(pr);
+    
+    free(pr);
     free(sr);
     free(distance);
 
