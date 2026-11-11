@@ -7,6 +7,7 @@
 typedef struct __distance {
     float **coordinates;
     float **eu_distances;
+    unsigned city_count;
 } Distance;
 
 void alloc_coordinates(Distance *distance, unsigned _N);

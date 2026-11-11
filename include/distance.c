@@ -34,25 +34,38 @@ void dgenerate_euclidian_distances(Distance *distance, unsigned _N)
 
 void alloc_coordinates(Distance *distance, unsigned _N)
 {
+    distance->coordinates = NULL;
+    distance->eu_distances = NULL;
+
     distance->coordinates = malloc(_N * sizeof(float *));
     float *_ = malloc(_N * _N * sizeof(float));
 
-    if(distance->coordinates != NULL && _ != NULL){
+    if (distance->coordinates == NULL || _ == NULL) {
+        free(distance->coordinates);
+        free(_);
+        distance->coordinates = NULL;
+        return;
+    }
 
-        for(unsigned i = 0; i < _N; i++){
-            distance->coordinates[i] = &_[i * _N];
-        }
+    for(unsigned i = 0; i < _N; i++){
+        distance->coordinates[i] = &_[i * _N];
     }
 
     distance->eu_distances = malloc(_N * sizeof(float *));
     float *__ = malloc(_N * _N * sizeof(float));
 
-    if(distance->eu_distances != NULL && __ != NULL)
+    if (distance->eu_distances == NULL || __ == NULL) {
+        free(distance->eu_distances);
+        free(__);
+        free(_);
+        distance->coordinates = NULL;
+        distance->eu_distances = NULL;
+        return;
+    }
+
+    for(unsigned i = 0; i<_N; i++)
     {
-        for(unsigned i = 0; i<_N; i++)
-        {
-            distance->eu_distances[i] = &__[i * _N];
-        }
+        distance->eu_distances[i] = &__[i * _N];
     }
 }
 Distance* dcreate(unsigned _N)
@@ -60,7 +73,12 @@ Distance* dcreate(unsigned _N)
     Distance *distance = malloc(sizeof(Distance));
     if(distance != NULL){
 
+        distance->city_count = _N;
         alloc_coordinates(distance, _N);
+        if (distance->coordinates == NULL || distance->eu_distances == NULL) {
+            ddestroy(distance);
+            return NULL;
+        }
 
         for(unsigned i = 0; i<_N; i++)
         {
@@ -135,11 +153,23 @@ size_t dgenerate_permutations(
 
 void ddestroy(Distance *distance)
 {
-    free(distance->coordinates[0]);
-    free(distance->coordinates);
+    if (distance == NULL) {
+        return;
+    }
 
-    free(distance->eu_distances[0]);
-    free(distance->eu_distances);
+    if (distance->coordinates != NULL) {
+        if (distance->city_count > 0) {
+            free(distance->coordinates[0]);
+        }
+        free(distance->coordinates);
+    }
+
+    if (distance->eu_distances != NULL) {
+        if (distance->city_count > 0) {
+            free(distance->eu_distances[0]);
+        }
+        free(distance->eu_distances);
+    }
 
     free(distance);
 }

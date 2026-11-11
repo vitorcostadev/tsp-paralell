@@ -9,6 +9,7 @@
 
 ThreadData *td_create(void *arg, unsigned _N){
     ThreadData *data = (ThreadData *)arg;
+    data->best_route = NULL;
     data->best_route = malloc(_N * sizeof(int));
 
     return data->best_route != NULL ? data : NULL;
@@ -17,6 +18,7 @@ ThreadData *td_create(void *arg, unsigned _N){
 void *thread_tsp(void *arg)
 {
     ThreadData *data = (ThreadData *)arg;
+    data->routes_evaluated = 0;
     data = td_create(data, data->city_count);
 
     if(data != NULL){
@@ -24,10 +26,10 @@ void *thread_tsp(void *arg)
         bool *visited = calloc(data->city_count, sizeof(*visited));
         if (visited == NULL) {
             free(data->best_route);
+            data->best_route = NULL;
             return NULL;
         }
 
-        data->routes_evaluated = 0;
         for (unsigned initial_city = data->first_city;
             initial_city < data->end_city;
             initial_city++) {
