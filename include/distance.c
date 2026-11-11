@@ -58,6 +58,7 @@ void alloc_coordinates(Distance *distance, unsigned _N)
         free(distance->eu_distances);
         free(__);
         free(_);
+        free(distance->coordinates);
         distance->coordinates = NULL;
         distance->eu_distances = NULL;
         return;

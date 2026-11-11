@@ -28,6 +28,10 @@ TSPSequentialResult *tsps_init(unsigned _N)
 
 TSPParallelResult *tspp_init(unsigned _N, unsigned thread_count)
 {
+    if (thread_count == 0) {
+        return NULL;
+    }
+
     TSPParallelResult *tspp = malloc(sizeof(TSPParallelResult));
 
     if(tspp != NULL)
