@@ -8,11 +8,13 @@ typedef struct __tsp_sequential TSPSequentialResult;
 typedef struct __tsp_paralell TSPParallelResult;
 
 struct __thread_data {
-    int initial_city;
+    unsigned first_city;
+    unsigned end_city;
     Distance *distance;
     double best_cost;
-    int best_route[N];
+    int *best_route;
     size_t routes_evaluated;
+    unsigned city_count;
 };
 
 /**
@@ -21,7 +23,7 @@ struct __thread_data {
  * @return A pointer to the newly created ThreadData.
  * @note The param arg is void* to allow for flexibility in the type of data passed to the thread. It is expected that the caller will cast the argument to the appropriate type before passing it to this function.
  */
-ThreadData *td_create(void *arg);
+ThreadData *td_create(void *arg, unsigned _N);
 
 /**
  * @brief The function executed by each thread to solve the TSP problem.
@@ -45,5 +47,7 @@ size_t run_sequential_tsp(Distance *distance, TSPSequentialResult *sr);
  * @param pr A pointer to the TSPParallelResult structure where the results of the parallel TSP algorithm will be stored.
  * @note This function creates multiple threads to solve the TSP problem in parallel. It measures the time taken to solve the TSP problem and updates the TSP
  */
-size_t run_paralell_tsp(Distance *distance, TSPParallelResult *pr);
+size_t run_paralell_tsp(Distance *distance, TSPParallelResult *pr, unsigned _N);
+
+void td_destroy(ThreadData *data);
 #endif

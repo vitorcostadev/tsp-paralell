@@ -1,31 +1,28 @@
 #ifndef DISTANCE_H
 #define DISTANCE_H
 
-#ifndef N
-#define N 12
-#endif
-#define NUM_THREADS (N - 1)
-
 #include <stdbool.h>
 #include <stddef.h>
 
 typedef struct __distance {
-    float coordinates[N][2];
-    float eu_distances[N][N];
+    float **coordinates;
+    float **eu_distances;
 } Distance;
+
+void alloc_coordinates(Distance *distance, unsigned _N);
 
 /**
  * @brief Creates a new Distance.
  * @return A pointer to the newly created Distance.
  */
-Distance* dcreate();
+Distance* dcreate(unsigned _N);
 
 /**
  * @brief Generates the Euclidean distances between all pairs of coordinates in the Distance.
  * @param distance A pointer to the Distance.
  * @note The function calculates the Euclidean distance between each pair of coordinates and stores it in the eu_distances matrix of the Distance.
  */
-void dgenerate_euclidian_distances(Distance *distance);
+void dgenerate_euclidian_distances(Distance *distance, unsigned _N);
 
 /**
  * @brief Calculates the cost of a given route based on the Euclidean distances in the Distance.
@@ -34,7 +31,7 @@ void dgenerate_euclidian_distances(Distance *distance);
  * @return The total cost of the route.
  * @note The function sums the Euclidean distances between consecutive coordinates in the route, including the distance from the last coordinate back to the first.
  */
-double dcalculate_cost(Distance *distance, int route[N]);
+double dcalculate_cost(Distance *distance, int route[], unsigned _N);
 
 /**
  * @brief Generates all permutations of routes and finds the best route with the minimum cost.
@@ -50,10 +47,13 @@ double dcalculate_cost(Distance *distance, int route[N]);
 size_t dgenerate_permutations(
     Distance *distance,
     int position,
-    int route[N],
-    bool visited[N],
+    int route[],
+    bool visited[],
     double *best_cost,
-    int best_route[N]
+    int best_route[],
+    unsigned _N
 );
+
+void ddestroy(Distance *distance);
 
 #endif

@@ -62,7 +62,16 @@ plot.bat
 gcc -Wall -Wextra -Wpedantic -pthread \
     main.c include/utils.c include/distance.c include/result.c include/thread.c \
     -o main -lm
-./main
+./main --N 5
+```
+
+O número de cidades é definido com `--N`. A quantidade de threads pode ser
+definida com `--threads`, `-t` ou `-T`. Se não for informada, o programa usa
+`N / 2` threads por padrão. Para definir a seed a ser usada na execução, use `--seed`, `-s` ou `-S`. Se não informar, o programa executa com seed aleatória:
+
+```bash
+./main --N 5 --threads 3 --seed 0101
+./main --N 5 -t 3 -s 0202
 ```
 
 ### No Windows
@@ -71,7 +80,7 @@ gcc -Wall -Wextra -Wpedantic -pthread \
 gcc -Wall -Wextra -Wpedantic -pthread ^
     main.c include/utils.c include/distance.c include/result.c include/thread.c ^
     -o main.exe -lm
-main.exe
+main.exe --N 5
 ```
 
 ### Testes
@@ -160,11 +169,11 @@ melhor rota encontrada.
 
 ### Busca paralela
 
-O primeiro destino depois da origem divide o trabalho. Para `N` cidades, são
-criadas `N - 1` threads; cada uma explora as permutações que começam em uma
-cidade diferente. Cada thread mantém seu melhor resultado local. A thread
-principal aguarda todas com `pthread_join()` e escolhe o melhor resultado
-global.
+O primeiro destino depois da origem divide o trabalho entre a quantidade de
+threads configurada. As cidades iniciais são distribuídas em blocos
+contíguos e equilibrados, garantindo que cada rota seja avaliada uma única
+vez. Cada thread mantém seu melhor resultado local. A thread principal
+aguarda todas com `pthread_join()` e escolhe o melhor resultado global.
 
 ## Complexidade
 

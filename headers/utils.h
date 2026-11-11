@@ -17,6 +17,7 @@ double get_elapsed_time(struct timespec start, struct timespec end);
  * @brief Calculates the speedup of the parallel execution.
  * @param sequential_time Sequential execution time in seconds.
  * @param parallel_time Parallel execution time in seconds.
+ * @param _N Number of cities.
  * @return Sequential time divided by parallel time, or zero for invalid input.
  */
 double calculate_speedup(double sequential_time, double parallel_time);
@@ -33,7 +34,7 @@ double calculate_efficiency(double speedup, int processor_count);
  * @brief Prints the city coordinates and Euclidean distance matrix.
  * @param distance Distance data containing the coordinates and matrix.
  */
-void print_matrix(Distance *distance);
+void print_matrix(Distance *distance, unsigned _N);
 
 /**
  * @brief Prints the cost, route, and execution time of a TSP result.
@@ -41,31 +42,33 @@ void print_matrix(Distance *distance);
  * @param best_cost Cost of the best route.
  * @param best_route Best route found.
  * @param execution_time Execution time in seconds.
+ * @param _N Number of cities.
  */
 void print_result(
     const char *title,
     double best_cost,
-    int best_route[N],
-    double execution_time
-);
+    int best_route[],
+    double execution_time,
+    unsigned _N);
 
 /**
  * @brief Exports a route to a CSV file.
  * @param route Route to export.
  * @param filename Destination CSV path.
+ * @param _N Number of cities.
  */
-void export_route(const int route[N], const char *filename);
+void export_route(const int route[], const char *filename, unsigned _N);
 
 /**
  * @brief Exports city coordinates to the output CSV file.
  * @param distance Distance data containing the city coordinates.
  */
-void export_coordinates(Distance *distance);
+void export_coordinates(Distance *distance, unsigned _N);
 
 /**
  * @brief Exports the Euclidean distance matrix to the output CSV file.
  * @param distance Distance data containing the distance matrix.
  */
-void export_distances(Distance *distance);
+void export_distances(Distance *distance, unsigned _N);
 
 #endif

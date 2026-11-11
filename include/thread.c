@@ -4,33 +4,50 @@
 #include <float.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include <time.h>
 
-ThreadData *td_create(void *arg){
-    return (ThreadData *)arg;
+ThreadData *td_create(void *arg, unsigned _N){
+    ThreadData *data = (ThreadData *)arg;
+    data->best_route = malloc(_N * sizeof(int));
+    return data;
 }
 
 void *thread_tsp(void *arg)
 {
-    ThreadData *data = td_create(arg);
-    int route[N];
-    bool visited[N] = {false};
+    ThreadData *data = (ThreadData *)arg;
+    data = td_create(data, data->city_count);
 
-    route[0] = 0;
-    visited[0] = true;
+    int route[data->city_count];
+    bool *visited = calloc(data->city_count, sizeof(*visited));
+    if (visited == NULL) {
+        free(data->best_route);
+        return NULL;
+    }
 
-    route[1] = data->initial_city;
-    visited[data->initial_city] = true;
+    data->routes_evaluated = 0;
+    for (unsigned initial_city = data->first_city;
+         initial_city < data->end_city;
+         initial_city++) {
+        memset(visited, 0, data->city_count * sizeof(*visited));
+        route[0] = 0;
+        visited[0] = true;
 
-    data->routes_evaluated = dgenerate_permutations(
-        data->distance,
-        2,
-        route,
-        visited,
-        &data->best_cost,
-        data->best_route
-    );
+        route[1] = initial_city;
+        visited[initial_city] = true;
 
+        data->routes_evaluated += dgenerate_permutations(
+            data->distance,
+            2,
+            route,
+            visited,
+            &data->best_cost,
+            data->best_route,
+            data->city_count
+        );
+    }
+
+    free(visited);
     return NULL;
 }
 
@@ -44,7 +61,8 @@ size_t run_sequential_tsp(Distance *distance, TSPSequentialResult *sr)
         sr->sroute,
         sr->svisited,
         &sr->sbest_cost,
-        sr->sbest_route
+        sr->sbest_route,
+        sr->city_count
     );
 
     clock_gettime(CLOCK_MONOTONIC, &sr->end);
@@ -52,9 +70,9 @@ size_t run_sequential_tsp(Distance *distance, TSPSequentialResult *sr)
     return result;
 }
 
-size_t run_paralell_tsp(Distance *distance, TSPParallelResult *pr)
+size_t run_paralell_tsp(Distance *distance, TSPParallelResult *pr, unsigned _N)
 {
-    for (int i = 0; i < NUM_THREADS; i++) {
+    for (unsigned i = 0; i < pr->thread_count; i++) {
         pr->threads_data[i].distance = distance;
     }
 
@@ -63,7 +81,7 @@ size_t run_paralell_tsp(Distance *distance, TSPParallelResult *pr)
     int created_threads = 0;
     size_t total_routes = 0;
 
-    for (int i = 0; i < NUM_THREADS; i++) {
+    for (unsigned i = 0; i < pr->thread_count; i++) {
         int result = pthread_create(
             &pr->threads[i],
             NULL,
@@ -87,9 +105,10 @@ size_t run_paralell_tsp(Distance *distance, TSPParallelResult *pr)
     }
 
     double parallel_best_cost = DBL_MAX;
-    int parallel_best_route[N];
+    int parallel_best_route[_N];
 
-    for (int i = 0; i < NUM_THREADS; i++) {
+
+    for (unsigned i = 0; i < pr->thread_count; i++) {
         int result = pthread_join(pr->threads[i], NULL);
         if (result != 0) {
             fprintf(stderr,
@@ -103,7 +122,7 @@ size_t run_paralell_tsp(Distance *distance, TSPParallelResult *pr)
         if (pr->threads_data[i].best_cost < parallel_best_cost) {
             parallel_best_cost = pr->threads_data[i].best_cost;
 
-            for (int j = 0; j < N; j++) {
+            for (unsigned j = 0; j < _N; j++) {
                 parallel_best_route[j] =
                     pr->threads_data[i].best_route[j];
             }
@@ -111,11 +130,18 @@ size_t run_paralell_tsp(Distance *distance, TSPParallelResult *pr)
     }
 
     pr->pbest_cost = parallel_best_cost;
-    for (int j = 0; j < N; j++) {
+    for (unsigned j = 0; j < _N; j++) {
         pr->pbest_route[j] = parallel_best_route[j];
     }
 
     clock_gettime(CLOCK_MONOTONIC, &pr->end);
 
     return total_routes;
+}
+
+void td_destroy(ThreadData *data){
+    if (data != NULL) {
+        free(data->best_route);
+        free(data);
+    }
 }

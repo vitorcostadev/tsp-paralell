@@ -26,11 +26,11 @@ double calculate_efficiency(double speedup, int processor_count)
     return speedup / processor_count;
 }
 
-void print_matrix(Distance *distance)
+void print_matrix(Distance *distance, unsigned _N)
 {
     printf("\n========== CITIES COORDINATES ==========\n");
 
-    for (int i = 0; i < N; i++) {
+    for (unsigned i = 0; i < _N; i++) {
         printf("Cidade %d: (%.2f, %.2f)\n",
                i + 1,
                distance->coordinates[i][0],
@@ -41,16 +41,16 @@ void print_matrix(Distance *distance)
 
     printf("      ");
 
-    for (int j = 0; j < N; j++) {
+    for (unsigned j = 0; j < _N; j++) {
         printf("%10d", j + 1);
     }
 
     printf("\n");
 
-    for (int i = 0; i < N; i++) {
+    for (unsigned i = 0; i < _N; i++) {
         printf("%5d ", i + 1);
 
-        for (int j = 0; j < N; j++) {
+        for (unsigned j = 0; j < _N; j++) {
             printf("%10.2f",
                    distance->eu_distances[i][j]);
         }
@@ -62,8 +62,9 @@ void print_matrix(Distance *distance)
 void print_result(
     const char *Title,
     double bestCost,
-    int bestRoute[N],
-    double executionTime
+    int bestRoute[],
+    double executionTime,
+    unsigned _N
 )
 {
     printf("\n========== %s ==========\n", Title);
@@ -72,7 +73,7 @@ void print_result(
 
     printf("Best route: ");
 
-    for (int i = 0; i < N; i++) {
+    for (unsigned i = 0; i < _N; i++) {
         printf("%d -> ", bestRoute[i] + 1);
     }
 
@@ -82,7 +83,7 @@ void print_result(
 }
 
 
-void export_route(const int route[N], const char *filename)
+void export_route(const int route[], const char *filename, unsigned _N)
 {
     FILE *file = fopen(filename, "w");
     if (file == NULL) {
@@ -92,7 +93,7 @@ void export_route(const int route[N], const char *filename)
 
     fprintf(file, "order,city\n");
 
-    for (int i = 0; i < N; i++)
+    for (unsigned i = 0; i < _N; i++)
     {
         fprintf(file, "%d,%d\n", i + 1, route[i] + 1);
     }
@@ -100,7 +101,7 @@ void export_route(const int route[N], const char *filename)
     fclose(file);
 }
 
-void export_coordinates(Distance *distance)
+void export_coordinates(Distance *distance, unsigned _N)
 {
     FILE *file = fopen("output/cities.csv", "w");
 
@@ -112,7 +113,7 @@ void export_coordinates(Distance *distance)
 
     fprintf(file, "city,x,y\n");
 
-    for (int i = 0; i < N; i++)
+    for (unsigned i = 0; i < _N; i++)
     {
         fprintf(
             file,
@@ -126,7 +127,7 @@ void export_coordinates(Distance *distance)
     fclose(file);
 }
 
-void export_distances(Distance *distance)
+void export_distances(Distance *distance, unsigned _N)
 {
     FILE *file = fopen("output/distances.csv", "w");
 
@@ -137,8 +138,8 @@ void export_distances(Distance *distance)
 
     fprintf(file, "city_a,city_b,distance\n");
 
-    for (int i = 0; i < N; i++) {
-        for (int j = i + 1; j < N; j++) {
+    for (unsigned i = 0; i < _N; i++) {
+        for (unsigned j = i + 1; j < _N; j++) {
             fprintf(
                 file,
                 "%d,%d,%.2f\n",

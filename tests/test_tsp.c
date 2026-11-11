@@ -42,7 +42,7 @@ static void initialize_known_instance(Distance *distance)
         distance->coordinates[city][1] = coordinates[city][1];
     }
 
-    dgenerate_euclidian_distances(distance);
+    dgenerate_euclidian_distances(distance, N);
 }
 
 static int test_euclidean_matrix(const Distance *distance)
@@ -96,7 +96,8 @@ static int test_brute_force(Distance *distance)
         route,
         visited,
         &best_cost,
-        best_route
+        best_route,
+        N
     );
 
     return routes_evaluated == expected_routes &&
@@ -107,8 +108,8 @@ static int test_brute_force(Distance *distance)
 static int test_parallel_matches_sequential(Distance *distance)
 {
 
-    TSPSequentialResult *sequential = tsps_init();
-    TSPParallelResult *parallel = tspp_init();
+    TSPSequentialResult *sequential = tsps_init(N);
+    TSPParallelResult *parallel = tspp_init(N, N / 2);
     if (sequential == NULL || parallel == NULL) {
         free(sequential);
         free(parallel);
@@ -116,7 +117,7 @@ static int test_parallel_matches_sequential(Distance *distance)
     }
 
     size_t sequential_routes = run_sequential_tsp(distance, sequential);
-    size_t parallel_routes = run_paralell_tsp(distance, parallel);
+    size_t parallel_routes = run_paralell_tsp(distance, parallel, N);
 
     int passed = isfinite(sequential->sbest_cost) &&
                  isfinite(parallel->pbest_cost) &&
@@ -133,7 +134,7 @@ static int test_parallel_matches_sequential(Distance *distance)
 
 int main(void)
 {
-    Distance *distance = dcreate();
+    Distance *distance = dcreate(N);
     if (distance == NULL) {
         fprintf(stderr, "Could not create test distance");
         return EXIT_FAILURE;

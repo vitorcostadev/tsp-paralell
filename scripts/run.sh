@@ -25,4 +25,4 @@ if [ ! -d "output" ]; then
     mkdir output
 fi
 
-./main
+./main --N 5
