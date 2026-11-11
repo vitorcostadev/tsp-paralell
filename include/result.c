@@ -60,6 +60,7 @@ TSPParallelResult *tspp_init(unsigned _N, unsigned thread_count)
             tspp->threads_data[i].distance = NULL;
             tspp->threads_data[i].best_cost = DBL_MAX;
             tspp->threads_data[i].city_count = _N;
+            tspp->threads_data[i].completed = false;
         }
     }
 

@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <stdint.h>
 #include <time.h>
 #include <getopt.h>
 
@@ -72,6 +73,13 @@ int main(int argc, char *argv[])
     print_matrix(distance, qty);
     size_t sequential_routes = run_sequential_tsp(distance, sr);
     size_t parallel_routes = run_paralell_tsp(distance, pr, qty);
+
+    if (parallel_routes == SIZE_MAX) {
+        fprintf(stderr, "Parallel execution failed.\n");
+        destroy(sr, pr);
+        ddestroy(distance);
+        return EXIT_FAILURE;
+    }
 
     printf("Sequential routes evaluated: %zu\n", sequential_routes);
     printf("Parallel routes evaluated: %zu\n", parallel_routes);

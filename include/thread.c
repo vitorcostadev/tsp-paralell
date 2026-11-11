@@ -4,6 +4,7 @@
 #include <float.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdint.h>
 #include <string.h>
 #include <time.h>
 
@@ -19,6 +20,7 @@ void *thread_tsp(void *arg)
 {
     ThreadData *data = (ThreadData *)arg;
     data->routes_evaluated = 0;
+    data->completed = false;
     data = td_create(data, data->city_count);
 
     if(data != NULL){
@@ -52,6 +54,7 @@ void *thread_tsp(void *arg)
         }
 
         free(visited);
+        data->completed = true;
     }
     return NULL;
 }
@@ -103,7 +106,8 @@ size_t run_paralell_tsp(Distance *distance, TSPParallelResult *pr, unsigned _N)
                 pthread_join(pr->threads[j], NULL);
             }
 
-            exit(1);
+            clock_gettime(CLOCK_MONOTONIC, &pr->end);
+            return SIZE_MAX;
         }
 
         created_threads++;
@@ -119,7 +123,16 @@ size_t run_paralell_tsp(Distance *distance, TSPParallelResult *pr, unsigned _N)
             fprintf(stderr,
                     "Erro ao aguardar thread: %d\n",
                     result);
-            exit(1);
+            clock_gettime(CLOCK_MONOTONIC, &pr->end);
+            return SIZE_MAX;
+        }
+
+        if (!pr->threads_data[i].completed) {
+            fprintf(stderr,
+                    "Thread %u nao concluiu o processamento.\n",
+                    i);
+            clock_gettime(CLOCK_MONOTONIC, &pr->end);
+            return SIZE_MAX;
         }
 
         total_routes += pr->threads_data[i].routes_evaluated;

@@ -26,18 +26,38 @@ struct __tsp_paralell {
 };
 
 /**
- * @brief Struct to store the result of the sequential TSP algorithm.
+ * @brief Creates a sequential TSP result object.
+ * @param _N Number of cities.
+ * @return Initialized result, or NULL on allocation failure.
  */
-TSPSequentialResult* tsps_init(unsigned _N);
+TSPSequentialResult *tsps_init(unsigned _N);
 
 /**
- * @brief Struct to store the result of the parallel TSP algorithm.
+ * @brief Creates a parallel TSP result object.
+ * @param _N Number of cities.
+ * @param thread_count Requested number of worker threads.
+ * @return Initialized result, or NULL if thread_count is zero or allocation fails.
+ * @note The effective thread count is capped at _N - 1.
  */
 TSPParallelResult *tspp_init(unsigned _N, unsigned thread_count);
 
+/**
+ * @brief Releases a sequential TSP result and its buffers.
+ * @param result Result object to release; NULL is accepted.
+ */
 void tsps_destroy(TSPSequentialResult *result);
+
+/**
+ * @brief Releases a parallel TSP result and its thread buffers.
+ * @param result Result object to release.
+ */
 void tspp_destroy(TSPParallelResult *result);
 
+/**
+ * @brief Releases both sequential and parallel result objects.
+ * @param seq Sequential result.
+ * @param par Parallel result.
+ */
 void destroy(TSPSequentialResult *seq, TSPParallelResult *par);
 
 #endif

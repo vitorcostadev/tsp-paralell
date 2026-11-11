@@ -10,40 +10,49 @@ typedef struct __distance {
     unsigned city_count;
 } Distance;
 
+/**
+ * @brief Allocates the coordinate and distance matrices.
+ * @param distance Distance object to initialize.
+ * @param _N Number of cities.
+ * @note On allocation failure, both matrix pointers are left as NULL.
+ */
 void alloc_coordinates(Distance *distance, unsigned _N);
 
 /**
- * @brief Creates a new Distance.
- * @return A pointer to the newly created Distance.
+ * @brief Creates and initializes a distance object with random coordinates.
+ * @param _N Number of cities.
+ * @return Initialized Distance, or NULL on allocation failure.
  */
-Distance* dcreate(unsigned _N);
+Distance *dcreate(unsigned _N);
 
 /**
- * @brief Generates the Euclidean distances between all pairs of coordinates in the Distance.
- * @param distance A pointer to the Distance.
- * @note The function calculates the Euclidean distance between each pair of coordinates and stores it in the eu_distances matrix of the Distance.
+ * @brief Generates the Euclidean distance matrix.
+ * @param distance Distance object containing the coordinates and output matrix.
+ * @param _N Number of cities.
+ * @note The distance object and both matrices must be initialized before calling.
  */
 void dgenerate_euclidian_distances(Distance *distance, unsigned _N);
 
 /**
- * @brief Calculates the cost of a given route based on the Euclidean distances in the Distance.
- * @param distance A pointer to the Distance.
- * @param route An array representing the order of coordinates in the route.
- * @return The total cost of the route.
- * @note The function sums the Euclidean distances between consecutive coordinates in the route, including the distance from the last coordinate back to the first.
+ * @brief Calculates the closed-tour cost of a route.
+ * @param distance Distance object containing the distance matrix.
+ * @param route Route containing one city index per position.
+ * @param _N Number of cities in the route.
+ * @return The sum of consecutive distances, including the return to city zero.
  */
 double dcalculate_cost(Distance *distance, int route[], unsigned _N);
 
 /**
- * @brief Generates all permutations of routes and finds the best route with the minimum cost.
- * @param distance A pointer to the Distance.
- * @param position The current position in the route being generated.
- * @param route An array representing the current route being generated.
- * @param visited An array indicating which coordinates have been visited in the current route.
- * @param best_cost A pointer to the best cost found so far.
- * @param best_route An array to store the best route found so far.
+ * @brief Generates route permutations and updates the best route found.
+ * @param distance Distance object containing the distance matrix.
+ * @param position Current position to fill in route.
+ * @param route Mutable route under construction.
+ * @param visited Boolean array marking cities already used.
+ * @param best_cost Pointer to the best cost found so far.
+ * @param best_route Output array for the best route.
+ * @param _N Number of cities.
  * @return The number of complete routes evaluated.
- * @note The function uses recursion to generate all possible permutations of routes, calculates the cost for each route, and updates the best cost and best route if a better one is found.
+ * @note The caller must initialize the fixed prefix of route and visited.
  */
 size_t dgenerate_permutations(
     Distance *distance,
@@ -55,6 +64,10 @@ size_t dgenerate_permutations(
     unsigned _N
 );
 
+/**
+ * @brief Releases a Distance object and its matrices.
+ * @param distance Distance object to release.
+ */
 void ddestroy(Distance *distance);
 
 #endif
