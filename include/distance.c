@@ -37,16 +37,22 @@ void alloc_coordinates(Distance *distance, unsigned _N)
     distance->coordinates = malloc(_N * sizeof(float *));
     float *_ = malloc(_N * _N * sizeof(float));
 
-    for(unsigned i = 0; i < _N; i++){
-        distance->coordinates[i] = &_[i * _N];
+    if(distance->coordinates != NULL && _ != NULL){
+
+        for(unsigned i = 0; i < _N; i++){
+            distance->coordinates[i] = &_[i * _N];
+        }
     }
 
     distance->eu_distances = malloc(_N * sizeof(float *));
     float *__ = malloc(_N * _N * sizeof(float));
 
-    for(unsigned i = 0; i<_N; i++)
+    if(distance->eu_distances != NULL && __ != NULL)
     {
-        distance->eu_distances[i] = &__[i * _N];
+        for(unsigned i = 0; i<_N; i++)
+        {
+            distance->eu_distances[i] = &__[i * _N];
+        }
     }
 }
 Distance* dcreate(unsigned _N)

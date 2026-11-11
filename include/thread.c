@@ -10,7 +10,8 @@
 ThreadData *td_create(void *arg, unsigned _N){
     ThreadData *data = (ThreadData *)arg;
     data->best_route = malloc(_N * sizeof(int));
-    return data;
+
+    return data->best_route != NULL ? data : NULL;
 }
 
 void *thread_tsp(void *arg)
@@ -18,36 +19,38 @@ void *thread_tsp(void *arg)
     ThreadData *data = (ThreadData *)arg;
     data = td_create(data, data->city_count);
 
-    int route[data->city_count];
-    bool *visited = calloc(data->city_count, sizeof(*visited));
-    if (visited == NULL) {
-        free(data->best_route);
-        return NULL;
+    if(data != NULL){
+        int route[data->city_count];
+        bool *visited = calloc(data->city_count, sizeof(*visited));
+        if (visited == NULL) {
+            free(data->best_route);
+            return NULL;
+        }
+
+        data->routes_evaluated = 0;
+        for (unsigned initial_city = data->first_city;
+            initial_city < data->end_city;
+            initial_city++) {
+            memset(visited, 0, data->city_count * sizeof(*visited));
+            route[0] = 0;
+            visited[0] = true;
+
+            route[1] = initial_city;
+            visited[initial_city] = true;
+
+            data->routes_evaluated += dgenerate_permutations(
+                data->distance,
+                2,
+                route,
+                visited,
+                &data->best_cost,
+                data->best_route,
+                data->city_count
+            );
+        }
+
+        free(visited);
     }
-
-    data->routes_evaluated = 0;
-    for (unsigned initial_city = data->first_city;
-         initial_city < data->end_city;
-         initial_city++) {
-        memset(visited, 0, data->city_count * sizeof(*visited));
-        route[0] = 0;
-        visited[0] = true;
-
-        route[1] = initial_city;
-        visited[initial_city] = true;
-
-        data->routes_evaluated += dgenerate_permutations(
-            data->distance,
-            2,
-            route,
-            visited,
-            &data->best_cost,
-            data->best_route,
-            data->city_count
-        );
-    }
-
-    free(visited);
     return NULL;
 }
 

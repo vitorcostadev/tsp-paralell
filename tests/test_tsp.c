@@ -111,8 +111,7 @@ static int test_parallel_matches_sequential(Distance *distance)
     TSPSequentialResult *sequential = tsps_init(N);
     TSPParallelResult *parallel = tspp_init(N, N / 2);
     if (sequential == NULL || parallel == NULL) {
-        free(sequential);
-        free(parallel);
+        destroy(sequential, parallel);
         return 0;
     }
 
@@ -127,8 +126,7 @@ static int test_parallel_matches_sequential(Distance *distance)
                  sequential_routes == parallel_routes &&
                  nearly_equal(sequential->sbest_cost, 3.0 + sqrt(2.0));
 
-    free(sequential);
-    free(parallel);
+    destroy(sequential, parallel);
     return passed;
 }
 
@@ -148,9 +146,10 @@ int main(void)
     int parallel = test_parallel_matches_sequential(distance);
     if (!metrics || !matrix || !brute_force || !parallel) {
         fprintf(stderr, "TSP tests failed\n");
+        ddestroy(distance);
         return EXIT_FAILURE;
     }
 
-    free(distance);
+    ddestroy(distance);
     return EXIT_SUCCESS;
 }

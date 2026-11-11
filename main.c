@@ -125,6 +125,10 @@ int main(int argc, char *argv[])
         printf("Both executions found the same optimal cost.\n");
     } else {
         printf("Different optimal costs found.\n");
+
+        destroy(sr, pr);
+        ddestroy(distance);
+        return EXIT_FAILURE;
     }
     
     destroy(sr, pr);
