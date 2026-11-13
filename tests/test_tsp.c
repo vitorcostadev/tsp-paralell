@@ -13,6 +13,11 @@ static int nearly_equal(double actual, double expected)
     return fabs(actual - expected) < 1e-6;
 }
 
+static int nearly_equal_km(double actual, double expected)
+{
+    return fabs(actual - expected) < 1e-5;
+}
+
 static int route_is_valid(const int route[N])
 {
     bool visited[N] = {false};
@@ -29,17 +34,41 @@ static int route_is_valid(const int route[N])
 
 static void initialize_known_instance(Distance *distance)
 {
-    const float coordinates[N][2] = {
-        {0.0f, 0.0f},
-        {1.0f, 0.0f},
-        {1.0f, 1.0f},
-        {0.0f, 1.0f},
-        {0.5f, 0.5f}
+    /* Coordinates are ordered as latitude, longitude. */
+    const double gps_coordinates[N][2] = {
+        {-27.59818, -48.62004},
+        {-27.5897003, -48.6538849},
+        {-27.5775024, -48.6145378},
+        {-27.5629916, -48.6380238},
+        {-27.5812197, -48.629334}
     };
+    const double earth_radius_km = 6371.0088;
+    const double degrees_to_radians = acos(-1.0) / 180.0;
+    double latitude_origin = 0.0;
+    double longitude_origin = 0.0;
 
     for (int city = 0; city < N; city++) {
-        distance->coordinates[city][0] = coordinates[city][0];
-        distance->coordinates[city][1] = coordinates[city][1];
+        latitude_origin += gps_coordinates[city][0];
+        longitude_origin += gps_coordinates[city][1];
+    }
+    latitude_origin /= N;
+    longitude_origin /= N;
+
+    const double longitude_scale = cos(latitude_origin * degrees_to_radians);
+
+    for (int city = 0; city < N; city++) {
+        const double latitude = gps_coordinates[city][0];
+        const double longitude = gps_coordinates[city][1];
+
+        /* Local equirectangular projection, in kilometers, for this city set. */
+        distance->coordinates[city][0] = (float)(
+            earth_radius_km * longitude_scale *
+            (longitude - longitude_origin) * degrees_to_radians
+        );
+        distance->coordinates[city][1] = (float)(
+            earth_radius_km * (latitude - latitude_origin) *
+            degrees_to_radians
+        );
     }
 
     dgenerate_euclidian_distances(distance, N);
@@ -48,17 +77,17 @@ static void initialize_known_instance(Distance *distance)
 static int test_euclidean_matrix(const Distance *distance)
 {
     const double expected[N][N] = {
-        {0.0, 1.0, sqrt(2.0), 1.0, sqrt(0.5)},
-        {1.0, 0.0, 1.0, sqrt(2.0), sqrt(0.5)},
-        {sqrt(2.0), 1.0, 0.0, 1.0, sqrt(0.5)},
-        {1.0, sqrt(2.0), 1.0, 0.0, sqrt(0.5)},
-        {sqrt(0.5), sqrt(0.5), sqrt(0.5), sqrt(0.5), 0.0}
+        {0.0, 3.466381, 2.362332, 4.295506, 2.096586},
+        {3.466381, 0.0, 4.108316, 3.356168, 2.596942},
+        {2.362332, 4.108316, 0.0, 2.821602, 1.515729},
+        {4.295506, 3.356168, 2.821602, 0.0, 2.200392},
+        {2.096586, 2.596942, 1.515729, 2.200392, 0.0}
     };
 
     for (int from = 0; from < N; from++) {
         for (int to = 0; to < N; to++) {
-            if (!nearly_equal(distance->eu_distances[from][to],
-                              expected[from][to])) {
+            if (!nearly_equal_km(distance->eu_distances[from][to],
+                                 expected[from][to])) {
                 return 0;
             }
         }
@@ -101,7 +130,7 @@ static int test_brute_force(Distance *distance)
     );
 
     return routes_evaluated == expected_routes &&
-           nearly_equal(best_cost, 3.0 + sqrt(2.0)) &&
+           nearly_equal_km(best_cost, 12.901002) &&
            route_is_valid(best_route);
 }
 
@@ -124,7 +153,7 @@ static int test_parallel_matches_sequential(Distance *distance)
                  route_is_valid(sequential->sbest_route) &&
                  route_is_valid(parallel->pbest_route) &&
                  sequential_routes == parallel_routes &&
-                 nearly_equal(sequential->sbest_cost, 3.0 + sqrt(2.0));
+                 nearly_equal_km(sequential->sbest_cost, 12.901002);
 
     destroy(sequential, parallel);
     return passed;

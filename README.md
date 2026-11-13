@@ -120,6 +120,12 @@ output/
 
 Quando executar o script [`scripts/plot.py`](scripts/plot.py), ele vai ler todos esses CSVs e gerar os gráficos para ambas as rotas.
 
+Para mostrar apenas a rota e indicar a unidade dos eixos (quando as coordenadas estiverem em quilômetros), use:
+
+```bash
+python3 scripts/plot.py --route-only --axis-unit km
+```
+
 Para executar mais rapidamente, utilize o [`scripts/plot.sh`](scripts/plot.sh) (Linux) ou [`scripts/plot.bat`](scripts/plot.bat) (Windows) onde será criado a venv no projeto, instalado as dependências e executar o plot.py.
 
 As dependências para executar o script em Python está em [`requirements.txt`](requirements.txt).
