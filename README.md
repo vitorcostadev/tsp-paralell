@@ -74,6 +74,12 @@ definida com `--threads`, `-t` ou `-T`. Se não for informada, o programa usa
 ./main --N 5 -t 3 -s 0202
 ```
 
+Para usar os pontos geográficos de [`cities.csv`](cities.csv), passe `--cities`. O programa lê as primeiras `N` linhas, converte latitude/longitude em coordenadas locais em quilômetros e executa as buscas sequencial e paralela:
+
+```bash
+./main --N 13 --threads 6 --cities cities.csv
+```
+
 ### No Windows
 
 ```bat
